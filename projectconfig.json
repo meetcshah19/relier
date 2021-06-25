@@ -1,0 +1,5 @@
+{
+    "jwt-secret":"bitchlasagna",
+    "openvidu-url":"https://40.121.247.90/",
+    "openvidu-secret":"meet"
+}

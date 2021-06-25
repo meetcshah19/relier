@@ -50,6 +50,9 @@ import * as path from "path";
 import * as http from "http";
 import * as indexRouter from "./routes/index";
 import * as secureRouter from "./routes/secure";
+import * as callrouter from "./routes/call";
+import * as vcrouter from "./routes/video-call-api";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 createConnection().then(() => {
     const app = express();
@@ -57,8 +60,10 @@ createConnection().then(() => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     app.use(express.static(path.join(__dirname, '../public')));
-    app.use('/', indexRouter);
-    app.use('/secure', secureRouter);
+    app.use('/api', indexRouter);
+    app.use('/api/secure', secureRouter);
+    app.use('/api/video', vcrouter);
+    app.use('/api/vc', callrouter);
     app.set('port', port);
     const server = http.createServer(app);
     server.listen(port);

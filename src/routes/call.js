@@ -37,60 +37,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var express = require("express");
 var jwt = require("express-jwt");
-var typeorm_1 = require("typeorm");
-var User_1 = require("../entity/User");
+var axios_1 = require("axios");
 var data = require('../../projectconfig.json');
 var router = express.Router();
-var secret = data["jwt-secret"];
-router.get("/users/:id", jwt({ secret: secret, algorithms: ['HS256'] }), function (req, res) {
+var SECRET = data["jwt-secret"];
+var OPENVIDU_URL = data["openvidu-url"] + "/openvidu/api";
+var OPENVIDU_SECRET = data["openvidu-secret"];
+var AUTH_HEADER = 'Basic ' + (Buffer.from('OPENVIDUAPP:' + OPENVIDU_SECRET).toString('base64'));
+router.post("/:sid", jwt({ secret: SECRET, algorithms: ['HS256'] }), function (req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var conn, userRepository, results;
+        var data;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    conn = typeorm_1.getConnection();
-                    userRepository = conn.getRepository(User_1.User);
-                    return [4 /*yield*/, userRepository.findOne(req.user.id)];
-                case 1:
-                    results = _a.sent();
-                    return [2 /*return*/, res.send(results)];
-            }
-        });
-    });
-});
-router.put("/users/:id", jwt({ secret: secret, algorithms: ['HS256'] }), function (req, res) {
-    return __awaiter(this, void 0, void 0, function () {
-        var conn, userRepository, user, results;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    conn = typeorm_1.getConnection();
-                    userRepository = conn.getRepository(User_1.User);
-                    return [4 /*yield*/, userRepository.findOne(req.user.id)];
-                case 1:
-                    user = _a.sent();
-                    userRepository.merge(user, req.body);
-                    return [4 /*yield*/, userRepository.save(user)];
-                case 2:
-                    results = _a.sent();
-                    return [2 /*return*/, res.send(results)];
-            }
-        });
-    });
-});
-router.delete("/users/:id", function (req, res) {
-    return __awaiter(this, void 0, void 0, function () {
-        var conn, userRepository, results;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    conn = typeorm_1.getConnection();
-                    userRepository = conn.getRepository(User_1.User);
-                    return [4 /*yield*/, userRepository.delete(req.user.id)];
-                case 1:
-                    results = _a.sent();
-                    return [2 /*return*/, res.send(results)];
-            }
+            data = JSON.stringify({ "type": "WEBRTC", "data": req.user.name, "record": true, "role": "PUBLISHER", "kurentoOptions": { "videoMaxRecvBandwidth": 1000, "videoMinRecvBandwidth": 300, "videoMaxSendBandwidth": 1000, "videoMinSendBandwidth": 300, "allowedFilters": ["GStreamerFilter", "ZBarFilter"] } });
+            axios_1.default({
+                method: 'post',
+                url: 'https://40.121.247.90/openvidu/api/sessions/' + req.params.sid + '/connection',
+                headers: {
+                    'Authorization': AUTH_HEADER,
+                    'Content-Type': 'application/json',
+                },
+                data: data
+            })
+                .then(function (response) {
+                console.log(JSON.stringify(response.data));
+                res.status(200).send({ "token": response.data.token });
+            })
+                .catch(function (error) {
+                console.log(error);
+                res.status(500).send();
+            });
+            return [2 /*return*/];
         });
     });
 });

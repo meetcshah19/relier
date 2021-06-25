@@ -36,13 +36,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var express = require("express");
-var typeorm_1 = require("typeorm");
-var User_1 = require("../entity/User");
 var bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
+var typeorm_1 = require("typeorm");
+var User_1 = require("../entity/User");
+var data = require('../../projectconfig.json');
 var saltRounds = 5;
+var secret = data["jwt-secret"];
 var router = express.Router();
-var secret = "bitchlasagnaisapewdslang";
 router.post("/users", function (req, res) {
     return __awaiter(this, void 0, void 0, function () {
         var conn, userRepository;
@@ -61,8 +62,8 @@ router.post("/users", function (req, res) {
                             return [4 /*yield*/, userRepository.save(user)];
                         case 1:
                             results = _a.sent();
-                            token = jwt.sign({ id: results["id"] }, secret);
-                            return [2 /*return*/, res.status(200).send(token)];
+                            token = jwt.sign({ id: results["id"], "name": results["name"] }, secret);
+                            return [2 /*return*/, res.status(200).send({ "token": token })];
                         case 2:
                             err_1 = _a.sent();
                             return [2 /*return*/, res.send(400)];
@@ -88,8 +89,8 @@ router.post("/login", function (req, res) {
                     if (user) {
                         bcrypt.compare(req.body.password, user.password, function (err, result) {
                             if (result == true) {
-                                var token = jwt.sign({ id: user.id }, secret);
-                                return res.status(200).send(token);
+                                var token = jwt.sign({ id: user.id, "name": user.name }, secret);
+                                return res.status(200).send({ "token": token });
                             }
                             else {
                                 return res.status(401).send("Invalid Password");
