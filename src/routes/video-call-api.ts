@@ -1,10 +1,7 @@
 import * as express from "express";
 import * as jwt from "express-jwt";
-import { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import { Request, Response } from "express";
-import { getConnection } from "typeorm";
-import { User } from "../entity/User";
 const data = require('../../projectconfig.json');
 let router = express.Router();
 const SECRET = data["jwt-secret"];
@@ -16,7 +13,7 @@ router.post("/create", jwt({ secret: SECRET, algorithms: ['HS256'] }), async fun
     var data = JSON.stringify({ "mediaMode": "ROUTED", "recordingMode": "MANUAL", "forcedVideoCodec": "VP8", "defaultRecordingProperties": { "name": "MyRecording", "hasAudio": true, "hasVideo": true, "outputMode": "COMPOSED", "recordingLayout": "BEST_FIT", "resolution": "1280x720", "frameRate": 25, "shmSize": 536870912 } });
     axios({
         method: 'post',
-        url: 'https://40.121.247.90/openvidu/api/sessions',
+        url: `${OPENVIDU_URL}/openvidu/api/sessions`,
         headers: {
             'Authorization': AUTH_HEADER,
             'Content-Type': 'application/json'
