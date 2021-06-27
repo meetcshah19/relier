@@ -51,7 +51,7 @@ router.post("/:sid", jwt({ secret: SECRET, algorithms: ['HS256'] }), function (r
             data = JSON.stringify({ "type": "WEBRTC", "data": req.user.name, "record": true, "role": "PUBLISHER", "kurentoOptions": { "videoMaxRecvBandwidth": 1000, "videoMinRecvBandwidth": 300, "videoMaxSendBandwidth": 1000, "videoMinSendBandwidth": 300, "allowedFilters": ["GStreamerFilter", "ZBarFilter"] } });
             axios_1.default({
                 method: 'post',
-                url: 'https://40.121.247.90/openvidu/api/sessions/' + req.params.sid + '/connection',
+                url: OPENVIDU_URL + "/sessions/" + req.params.sid + "/connection",
                 headers: {
                     'Authorization': AUTH_HEADER,
                     'Content-Type': 'application/json',

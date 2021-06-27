@@ -51,7 +51,7 @@ router.post("/create", jwt({ secret: SECRET, algorithms: ['HS256'] }), function 
             data = JSON.stringify({ "mediaMode": "ROUTED", "recordingMode": "MANUAL", "forcedVideoCodec": "VP8", "defaultRecordingProperties": { "name": "MyRecording", "hasAudio": true, "hasVideo": true, "outputMode": "COMPOSED", "recordingLayout": "BEST_FIT", "resolution": "1280x720", "frameRate": 25, "shmSize": 536870912 } });
             axios_1.default({
                 method: 'post',
-                url: 'https://40.121.247.90/openvidu/api/sessions',
+                url: OPENVIDU_URL + "/sessions",
                 headers: {
                     'Authorization': AUTH_HEADER,
                     'Content-Type': 'application/json'

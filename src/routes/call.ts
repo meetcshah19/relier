@@ -14,7 +14,7 @@ router.post("/:sid", jwt({ secret: SECRET, algorithms: ['HS256'] }), async funct
 
     axios({
         method: 'post',
-        url: 'https://40.121.247.90/openvidu/api/sessions/' + req.params.sid + '/connection',
+        url: `${OPENVIDU_URL}/sessions/${req.params.sid}/connection`,
         headers: {
             'Authorization': AUTH_HEADER,
             'Content-Type': 'application/json',
