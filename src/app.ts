@@ -71,7 +71,7 @@ createConnection().then(() => {
     app.get('/:any', function (req, res) {
         res.sendFile(path.join(__dirname, '../build', 'index.html'));
     });
-    app.get('/home', function (req, res) {
+    app.get('/home/:teamSecret', function (req, res) {
         res.sendFile(path.join(__dirname, '../build', 'index.html'));
     });
     app.get('/vc/:sid', function (req, res) {
