@@ -9,36 +9,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.Message = void 0;
 var typeorm_1 = require("typeorm");
-var Team_1 = require("./Team");
-var User = /** @class */ (function () {
-    function User() {
+var User_1 = require("./User");
+var Channel_1 = require("./Channel");
+var Message = /** @class */ (function () {
+    function Message() {
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn({ name: 'id' }),
         __metadata("design:type", Number)
-    ], User.prototype, "id", void 0);
+    ], Message.prototype, "id", void 0);
     __decorate([
-        typeorm_1.Column({ name: 'name' }),
+        typeorm_1.ManyToOne(function () { return User_1.User; }, {
+            cascade: true
+        }),
+        __metadata("design:type", User_1.User)
+    ], Message.prototype, "sender", void 0);
+    __decorate([
+        typeorm_1.ManyToOne(function () { return Channel_1.Channel; }, {
+            cascade: true
+        }),
+        __metadata("design:type", Channel_1.Channel)
+    ], Message.prototype, "channel", void 0);
+    __decorate([
+        typeorm_1.Column(),
         __metadata("design:type", String)
-    ], User.prototype, "name", void 0);
+    ], Message.prototype, "text", void 0);
     __decorate([
-        typeorm_1.Column({ name: 'email' }),
-        __metadata("design:type", String)
-    ], User.prototype, "email", void 0);
+        typeorm_1.Column(),
+        __metadata("design:type", Boolean)
+    ], Message.prototype, "is_vc", void 0);
     __decorate([
-        typeorm_1.Column({ name: 'password' }),
-        __metadata("design:type", String)
-    ], User.prototype, "password", void 0);
-    __decorate([
-        typeorm_1.ManyToMany(function () { return Team_1.Team; }, function (Team) { return Team.members; }),
-        __metadata("design:type", Array)
-    ], User.prototype, "teams", void 0);
-    User = __decorate([
-        typeorm_1.Entity(),
-        typeorm_1.Unique(['email'])
-    ], User);
-    return User;
+        typeorm_1.Column({ type: 'timestamp', name: 'timestamp' }),
+        __metadata("design:type", Date)
+    ], Message.prototype, "timestamp", void 0);
+    Message = __decorate([
+        typeorm_1.Entity()
+    ], Message);
+    return Message;
 }());
-exports.User = User;
+exports.Message = Message;

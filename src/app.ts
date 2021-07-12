@@ -53,6 +53,8 @@ import * as secureRouter from "./routes/secure";
 import * as callrouter from "./routes/call";
 import * as vcrouter from "./routes/video-call-api";
 import * as cors from "cors";
+const { Server } = require("socket.io");
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 createConnection().then(() => {
@@ -60,12 +62,47 @@ createConnection().then(() => {
     const port = 3000;
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
-    app.use(express.static(path.join(__dirname, '../public')));
+    app.use(express.static(path.join(__dirname, '../build')));
     app.use('/api', indexRouter);
     app.use('/api/secure', secureRouter);
     app.use('/api/video', vcrouter);
     app.use('/api/vc', callrouter);
     app.set('port', port);
+    app.get('/:any', function (req, res) {
+        res.sendFile(path.join(__dirname, '../build', 'index.html'));
+    });
+    app.get('/home', function (req, res) {
+        res.sendFile(path.join(__dirname, '../build', 'index.html'));
+    });
+    app.get('/vc/:sid', function (req, res) {
+        res.sendFile(path.join(__dirname, '../build', 'index.html'));
+    });
+    app.get('/team/:secret', function (req, res) {
+        res.sendFile(path.join(__dirname, '../build', 'index.html'));
+    });
     const server = http.createServer(app);
+    const io = new Server(server, {
+        cors: {
+            origin: '*',
+        }
+    });
     server.listen(port);
+    io.on("connection", (socket) => {
+        console.log("connect");
+        socket.on("subscribe", function (room) {
+            console.log("joining room", room);
+            socket.join(room);
+        });
+
+        socket.on("unsubscribe", function (room) {
+            console.log("leaving room", room);
+            socket.leave(room);
+        });
+
+        socket.on("send", function (data) {
+            console.log("sending message");
+            console.log(data.room);
+            io.sockets.in(data.room).emit("message", data);
+        });
+    });
 });

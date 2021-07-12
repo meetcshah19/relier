@@ -48,7 +48,11 @@ router.post("/create", jwt({ secret: SECRET, algorithms: ['HS256'] }), function 
     return __awaiter(this, void 0, void 0, function () {
         var data;
         return __generator(this, function (_a) {
-            data = JSON.stringify({ "mediaMode": "ROUTED", "recordingMode": "MANUAL", "forcedVideoCodec": "VP8", "defaultRecordingProperties": { "name": "MyRecording", "hasAudio": true, "hasVideo": true, "outputMode": "COMPOSED", "recordingLayout": "BEST_FIT", "resolution": "1280x720", "frameRate": 25, "shmSize": 536870912 } });
+            data = { "mediaMode": "ROUTED", "recordingMode": "MANUAL", "forcedVideoCodec": "VP8", "defaultRecordingProperties": { "name": "MyRecording", "hasAudio": true, "hasVideo": true, "outputMode": "COMPOSED", "recordingLayout": "BEST_FIT", "resolution": "1280x720", "frameRate": 25, "shmSize": 536870912 } };
+            console.log(req.body.customSessionId);
+            if (req.body.customSessionId) {
+                data["customSessionId"] = req.body.customSessionId;
+            }
             axios_1.default({
                 method: 'post',
                 url: OPENVIDU_URL + "/sessions",
@@ -56,13 +60,14 @@ router.post("/create", jwt({ secret: SECRET, algorithms: ['HS256'] }), function 
                     'Authorization': AUTH_HEADER,
                     'Content-Type': 'application/json'
                 },
-                data: data
+                data: JSON.stringify(data)
             })
                 .then(function (response) {
-                console.log(JSON.stringify(response.data));
                 res.status(200).send({ "session_id": response.data.id });
             })
                 .catch(function (error) {
+                if (error.response.status === 409)
+                    res.status(200).send({ "session_id": req.body.customSessionId });
                 console.log(error);
             });
             return [2 /*return*/];

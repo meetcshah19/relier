@@ -9,36 +9,43 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.Team = void 0;
 var typeorm_1 = require("typeorm");
-var Team_1 = require("./Team");
-var User = /** @class */ (function () {
-    function User() {
+var User_1 = require("./User");
+var Channel_1 = require("./Channel");
+var Team = /** @class */ (function () {
+    function Team() {
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn({ name: 'id' }),
         __metadata("design:type", Number)
-    ], User.prototype, "id", void 0);
+    ], Team.prototype, "id", void 0);
     __decorate([
         typeorm_1.Column({ name: 'name' }),
         __metadata("design:type", String)
-    ], User.prototype, "name", void 0);
+    ], Team.prototype, "name", void 0);
     __decorate([
-        typeorm_1.Column({ name: 'email' }),
-        __metadata("design:type", String)
-    ], User.prototype, "email", void 0);
+        typeorm_1.ManyToOne(function () { return User_1.User; }),
+        __metadata("design:type", User_1.User)
+    ], Team.prototype, "owner", void 0);
     __decorate([
-        typeorm_1.Column({ name: 'password' }),
-        __metadata("design:type", String)
-    ], User.prototype, "password", void 0);
-    __decorate([
-        typeorm_1.ManyToMany(function () { return Team_1.Team; }, function (Team) { return Team.members; }),
+        typeorm_1.ManyToMany(function () { return User_1.User; }, function (User) { return User.teams; }, {
+            cascade: true
+        }),
+        typeorm_1.JoinTable(),
         __metadata("design:type", Array)
-    ], User.prototype, "teams", void 0);
-    User = __decorate([
-        typeorm_1.Entity(),
-        typeorm_1.Unique(['email'])
-    ], User);
-    return User;
+    ], Team.prototype, "members", void 0);
+    __decorate([
+        typeorm_1.ManyToMany(function () { return Channel_1.Channel; }, function (Channel) { return Channel.teams; }),
+        __metadata("design:type", Array)
+    ], Team.prototype, "channels", void 0);
+    __decorate([
+        typeorm_1.Column({ name: 'secret' }),
+        __metadata("design:type", String)
+    ], Team.prototype, "secret", void 0);
+    Team = __decorate([
+        typeorm_1.Entity()
+    ], Team);
+    return Team;
 }());
-exports.User = User;
+exports.Team = Team;

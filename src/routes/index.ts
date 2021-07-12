@@ -22,7 +22,8 @@ router.post("/users", async function (req: Request, res: Response) {
                         const user = userRepository.create(req.body);
                         var results = await userRepository.save(user);
                         var token = jwt.sign({ id: results["id"], "name": results["name"] }, secret);
-                        return res.status(200).send({ "token" : token });
+                        res.cookie('token', token, { secure: true });
+                        return res.status(200).send({ "token": token });
                 } catch (err) {
                         return res.send(400);
                 }
@@ -38,6 +39,7 @@ router.post("/login", async function (req: Request, res: Response) {
                 bcrypt.compare(req.body.password, user.password, (err, result) => {
                         if (result == true) {
                                 var token = jwt.sign({ id: user.id, "name": user.name }, secret);
+                                res.cookie('token', token, { secure: true });
                                 return res.status(200).send({ "token": token });
                         } else {
                                 return res.status(401).send("Invalid Password");

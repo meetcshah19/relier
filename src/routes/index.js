@@ -63,6 +63,7 @@ router.post("/users", function (req, res) {
                         case 1:
                             results = _a.sent();
                             token = jwt.sign({ id: results["id"], "name": results["name"] }, secret);
+                            res.cookie('token', token, { secure: true });
                             return [2 /*return*/, res.status(200).send({ "token": token })];
                         case 2:
                             err_1 = _a.sent();
@@ -90,6 +91,7 @@ router.post("/login", function (req, res) {
                         bcrypt.compare(req.body.password, user.password, function (err, result) {
                             if (result == true) {
                                 var token = jwt.sign({ id: user.id, "name": user.name }, secret);
+                                res.cookie('token', token, { secure: true });
                                 return res.status(200).send({ "token": token });
                             }
                             else {
