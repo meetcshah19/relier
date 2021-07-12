@@ -48,9 +48,9 @@ router.put("/teams/", jwt({ secret: secret, algorithms: ['HS256'] }), async func
         team.owner = user;
         team.members = [user];
         teamRepository.save(team);
-        return res.sendStatus(200).send("Team created");
+        return res.status(200).send("Team created");
     } else {
-        return res.sendStatus(500).send("Invalid");
+        return res.status(500).send("Invalid");
     }
 });
 
@@ -119,7 +119,7 @@ router.get("/channels/:teamSecret", jwt({ secret: secret, algorithms: ['HS256'] 
     if (team) {
         return res.status(200).send(team.channels);
     } else {
-        return res.sendStatus(500).send("Invalid");
+        return res.status(500).send("Invalid");
     }
 });
 

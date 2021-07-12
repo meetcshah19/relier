@@ -119,10 +119,10 @@ router.put("/teams/", jwt({ secret: secret, algorithms: ['HS256'] }), function (
                         team.owner = user;
                         team.members = [user];
                         teamRepository.save(team);
-                        return [2 /*return*/, res.sendStatus(200).send("Team created")];
+                        return [2 /*return*/, res.status(200).send("Team created")];
                     }
                     else {
-                        return [2 /*return*/, res.sendStatus(500).send("Invalid")];
+                        return [2 /*return*/, res.status(500).send("Invalid")];
                     }
                     return [2 /*return*/];
             }
@@ -248,7 +248,7 @@ router.get("/channels/:teamSecret", jwt({ secret: secret, algorithms: ['HS256'] 
                         return [2 /*return*/, res.status(200).send(team.channels)];
                     }
                     else {
-                        return [2 /*return*/, res.sendStatus(500).send("Invalid")];
+                        return [2 /*return*/, res.status(500).send("Invalid")];
                     }
                     return [2 /*return*/];
             }
