@@ -41,7 +41,6 @@ router.put("/teams/", jwt({ secret: secret, algorithms: ['HS256'] }), async func
     const team = new Team();
     const userRepository = conn.getRepository(User);
     const user = await userRepository.findOne(req.user.id);
-    console.log(req.body.name + " " + user);
     if (req.body.name && user) {
         team.name = req.body.name;
         team.secret = crypto.randomBytes(20).toString('hex');
@@ -88,13 +87,10 @@ router.post("/teams/leave/:secret", jwt({ secret: secret, algorithms: ['HS256'] 
     if (team) {
         const userRepository = conn.getRepository(User);
         const user = await userRepository.findOne(req.user.id);
-        console.log(team.members);
         const index = team.members.findIndex((iter) => (iter.id == req.user.id));
-        console.log(index);
         if (index > -1) {
             team.members.splice(index, 1);
         }
-        console.log(team.members);
         teamRepository.save(team);
         res.sendStatus(200);
     } else {
@@ -208,6 +204,5 @@ router.get("/messages/:secret", jwt({ secret: secret, algorithms: ['HS256'] }), 
     res.status(200).send(JSON.stringify(messages));
 
 });
-
 
 export = router

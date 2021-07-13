@@ -22,11 +22,9 @@ router.post("/:sid", jwt({ secret: SECRET, algorithms: ['HS256'] }), async funct
         data: data
     })
         .then(function (response) {
-            console.log(JSON.stringify(response.data));
             res.status(200).send({ "token": response.data.token });
         })
         .catch(function (error) {
-            console.log(error);
             res.status(500).send();
         });
 
