@@ -57,9 +57,16 @@ router.put("/teams/", jwt({ secret: secret, algorithms: ['HS256'] }), async func
 router.get("/teams/", jwt({ secret: secret, algorithms: ['HS256'] }), async function (req: any, res: Response) {
     const conn = getConnection();
     const userRepository = conn.getRepository(User);
-    const user = await userRepository.findOne(req.user.id, { relations: ["teams"] });
-    res.statusCode = 200;
-    return res.send(user.teams);
+    let user;
+    if (!req.body.secret) {
+        user = await userRepository.findOne(req.user.id, { relations: ["teams"] });
+        res.statusCode = 200;
+        return res.send(user.teams);
+    } else {
+        const teamRepository = conn.getRepository(Team);
+        const team = await teamRepository.findOne({ where: { secret: req.body.secret } });
+        return res.status(200).send(team);
+    }
 });
 
 router.delete("/teams/:id", jwt({ secret: secret, algorithms: ['HS256'] }), async function (req: any, res: Response) {
@@ -68,6 +75,27 @@ router.delete("/teams/:id", jwt({ secret: secret, algorithms: ['HS256'] }), asyn
     const team = await teamRepository.findOne(req.params.id, { relations: ["owner"] });
     if (team.owner.id == req.user.id) {
         teamRepository.delete(req.params.id);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(500);
+    }
+});
+
+router.post("/teams/leave/:secret", jwt({ secret: secret, algorithms: ['HS256'] }), async function (req: any, res: Response) {
+    const conn = getConnection();
+    const teamRepository = conn.getRepository(Team);
+    const team = await teamRepository.findOne({ where: { secret: req.params.secret }, relations: ["members"] });
+    if (team) {
+        const userRepository = conn.getRepository(User);
+        const user = await userRepository.findOne(req.user.id);
+        console.log(team.members);
+        const index = team.members.findIndex((iter) => (iter.id == req.user.id));
+        console.log(index);
+        if (index > -1) {
+            team.members.splice(index, 1);
+        }
+        console.log(team.members);
+        teamRepository.save(team);
         res.sendStatus(200);
     } else {
         res.sendStatus(500);
@@ -103,9 +131,6 @@ router.put("/channels/:teamSecret", jwt({ secret: secret, algorithms: ['HS256'] 
         channel.members = [user];
         channel.teams = [team];
         channelRepository.save(channel);
-        // team.channels.push(channel);
-        // console.log(team.channels)
-        // teamRepository.save(team);
         return res.status(200).send("Channel Created");
     } else {
         return res.status(500).send("Invalid");
@@ -176,7 +201,6 @@ router.get("/messages/:secret", jwt({ secret: secret, algorithms: ['HS256'] }), 
     const channelRepository = conn.getRepository(Channel);
     const channel = await channelRepository.findOne({ where: { secret: req.params.secret } });
     const messages = await messageRepository.find({ where: { channel: channel }, relations: ["sender"] });
-
     messages.forEach(element => {
         element.sender.email = ""
         element.sender.password = ""

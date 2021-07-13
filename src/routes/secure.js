@@ -131,17 +131,24 @@ router.put("/teams/", jwt({ secret: secret, algorithms: ['HS256'] }), function (
 });
 router.get("/teams/", jwt({ secret: secret, algorithms: ['HS256'] }), function (req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var conn, userRepository, user;
+        var conn, userRepository, user, teamRepository, team;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     conn = typeorm_1.getConnection();
                     userRepository = conn.getRepository(User_1.User);
+                    if (!!req.body.secret) return [3 /*break*/, 2];
                     return [4 /*yield*/, userRepository.findOne(req.user.id, { relations: ["teams"] })];
                 case 1:
                     user = _a.sent();
                     res.statusCode = 200;
                     return [2 /*return*/, res.send(user.teams)];
+                case 2:
+                    teamRepository = conn.getRepository(Team_1.Team);
+                    return [4 /*yield*/, teamRepository.findOne({ where: { secret: req.body.secret } })];
+                case 3:
+                    team = _a.sent();
+                    return [2 /*return*/, res.status(200).send(team)];
             }
         });
     });
@@ -165,6 +172,40 @@ router.delete("/teams/:id", jwt({ secret: secret, algorithms: ['HS256'] }), func
                         res.sendStatus(500);
                     }
                     return [2 /*return*/];
+            }
+        });
+    });
+});
+router.post("/teams/leave/:secret", jwt({ secret: secret, algorithms: ['HS256'] }), function (req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var conn, teamRepository, team, userRepository, user, index;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    conn = typeorm_1.getConnection();
+                    teamRepository = conn.getRepository(Team_1.Team);
+                    return [4 /*yield*/, teamRepository.findOne({ where: { secret: req.params.secret }, relations: ["members"] })];
+                case 1:
+                    team = _a.sent();
+                    if (!team) return [3 /*break*/, 3];
+                    userRepository = conn.getRepository(User_1.User);
+                    return [4 /*yield*/, userRepository.findOne(req.user.id)];
+                case 2:
+                    user = _a.sent();
+                    console.log(team.members);
+                    index = team.members.findIndex(function (iter) { return (iter.id == req.user.id); });
+                    console.log(index);
+                    if (index > -1) {
+                        team.members.splice(index, 1);
+                    }
+                    console.log(team.members);
+                    teamRepository.save(team);
+                    res.sendStatus(200);
+                    return [3 /*break*/, 4];
+                case 3:
+                    res.sendStatus(500);
+                    _a.label = 4;
+                case 4: return [2 /*return*/];
             }
         });
     });
@@ -220,9 +261,6 @@ router.put("/channels/:teamSecret", jwt({ secret: secret, algorithms: ['HS256'] 
                         channel.members = [user];
                         channel.teams = [team];
                         channelRepository.save(channel);
-                        // team.channels.push(channel);
-                        // console.log(team.channels)
-                        // teamRepository.save(team);
                         return [2 /*return*/, res.status(200).send("Channel Created")];
                     }
                     else {
